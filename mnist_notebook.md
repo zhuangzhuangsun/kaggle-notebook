@@ -35,8 +35,8 @@ value_count()函数统计相同的值的个数
 以上均需要print函数才能输出
 
 ## 正则化
-X_train = X_train/255
-test = test/255
+    X_train = X_train/255
+    test = test/255
 
 ## reshape
 
