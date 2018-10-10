@@ -2,16 +2,16 @@
 ## 数据的读入
 用padas来读取csv格式的文件
     
-`train = pd.read_csv("..\input\train.csv")`
-
-`test = pd.read_csv("..\input\test.csv")`
+    train = pd.read_csv("..\input\train.csv")
+    
+    test = pd.read_csv("..\input\test.csv")
 
 读取的数据类型为padas的DataFrame类型
 
 ## 提取出label
 训练集的第一列为label 其column为 label
 
- `Y_train = train['label']`
+     Y_train = train['label']
 
 删掉label这一列
     
