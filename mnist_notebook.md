@@ -58,5 +58,54 @@ test = test/255
 
 四个参数分别为训练集，训练集标签  验证集所占比例 随机种子
 
+## 卷积神经网络建模 ##
+    model = Squential()
+    model.add(Conv2D(filters=32, kernel_size=(3, 3), strides=(1, 1), padding='Same', activation='relu',
+                 input_shape=(28, 28, 1)))
+    model.add(Conv2D(filters=32, kernel_size=(3, 3), strides=(1, 1), padding='Same', activation='relu',))
+    model.add(Conv2D(filters=32, kernel_size=(3, 3), strides=(1, 1), padding='Same', activation='relu',))
+    model.add(Conv2D(filters=32, kernel_size=(3, 3), strides=(1, 1), padding='Same', activation='relu',))
+    model.add(MaxPool2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
+    
+    model.add(Conv2D(filters=64, kernel_size=(3, 3), strides=(1, 1), padding='Same', activation='relu',))
+    model.add(Conv2D(filters=64, kernel_size=(3, 3), strides=(1, 1), padding='Same', activation='relu',))
+    model.add(MaxPool2D(pool_size=(2, 2), strides=(2, 2)))
+    model.add(Dropout(0.25))
+    
+    model.add(Flatten())
+    model.add(Dense(256, activation="relu"))
+    model.add(Dropout(0.5))
+    model.add(Dense(10, activation="softmax"))
+   
+## 编译模型 ##
+    optimizer = RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
+    model.compile(optimizer=optimizer, loss="categorical_crossentropy", metrics=["accuracy"])
+    
 
+## 进行训练 ##
+    learning_rate_reduction = ReduceLROnPlateau(monitor='val_acc',
+    patience=3,
+    verbose=1,
+    factor=0.5,
+    min_lr=0.00001)
+    
+    
+    epochs = 5  # Turn epochs to 30 to get 0.9967 accuracy
+    batch_size = 86
+    
+    history = model.fit(X_train, Y_train, batch_size = batch_size, epochs = epochs,
+      validation_data = (X_val, Y_val), verbose = 2)
 
+## 在测试集进行测试 ##
+    results = model.predict(test)
+
+## 输出结果处理 ##
+    results = np.argmax(results, axis=1)  # 在列上取最大值
+    
+    results = pd.Series(results, name="Label")  # 初始化为Series
+    
+    submission = pd.concat([pd.Series(range(1, 28001), name="ImageId"), results], axis=1)  # 将两个Series拼成两列
+    
+    submission.to_csv("cnn_mnist_datagen.csv", index=False)
+    
