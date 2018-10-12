@@ -1,6 +1,6 @@
 # pandas_notebook #
 > 
-
+#### [详见pandas documentations](http://pandas.pydata.org/pandas-docs/stable/10min.html#setting) ####
 ## import ##
     import pandas as pd
     import numpy as np
@@ -134,3 +134,153 @@ DataFrame可以通过一个numpy array初始化
     2013-01-05 -0.424972  0.567020  0.276232 -1.087401  four
 
 ## 赋值 ##
+    In: s1 = pd.Series([1,2,3,4,5,6], index=pd.date_range('20130102', periods=6))
+
+    In: s1
+    Out: 
+		    2013-01-02 1
+		    2013-01-03 2
+		    2013-01-04 3
+		    2013-01-05 4
+		    2013-01-06 5
+		    2013-01-07 6
+	        Freq: D, dtype: int64
+    
+    In: df['F'] = s1
+
+使用标签进行赋值 at(assignment to)
+  
+    df.at[dates[0],'A'] = 0
+
+利用元素位置进行赋值
+
+    df.iat[0,1] = 0
+
+使用numpyarray进行赋值
+
+    df.loc[:,'D'] = np.array([5] * len(df))
+
+## 对缺失的数据进行处理 np.nan ##
+
+Reindexing allows you to change/add/delete the index on a specified axis. This returns a copy of the data.
+
+    In: df1 = df.reindex(index=dates[0:4], columns=list(df.columns) + ['E'])
+    
+    In: df1.loc[dates[0]:dates[1],'E'] = 1
+    
+    In: df1
+    Out: 
+                    A         B        C      D   F    E
+    2013-01-01  0.000000  0.000000 -1.509059  5  NaN  1.0
+    2013-01-02  1.212112 -0.173215  0.119209  5  1.0  1.0
+    2013-01-03 -0.861849 -2.104569 -0.494929  5  2.0  NaN
+    2013-01-04  0.721555 -0.706771 -1.039575  5  3.0  NaN
+
+删掉有NAN的行(row)
+
+    in: df1.dropna(how= 'any')
+    Out: 
+                   A         B         C      D   F    E
+
+    2013-01-02  1.212112 -0.173215  0.119209  5  1.0  1.0
+
+填充缺失的数据
+
+    in: df1.fillna(value = 5)
+    Out: 
+                    A         B         C     D   F    E
+    2013-01-01  0.000000  0.000000 -1.509059  5  5.0  1.0
+    2013-01-02  1.212112 -0.173215  0.119209  5  1.0  1.0
+    2013-01-03 -0.861849 -2.104569 -0.494929  5  2.0  5.0
+    2013-01-04  0.721555 -0.706771 -1.039575  5  3.0  5.0
+
+得到哪一个元素是缺失的布尔值
+
+    In : pd.isna(df1)
+    Out: 
+                A      B      C      D      F      E
+    2013-01-01  False  False  False  False   True  False
+    2013-01-02  False  False  False  False  False  False
+    2013-01-03  False  False  False  False  False   True
+    2013-01-04  False  False  False  False  False   True
+
+
+## 操作 ##
+    
+    df.mean() # 对列求均值
+    df.mean(1) #对行求均值
+
+不同维度的对象有时候需要运算 pandas自动根据特定的维度broadcast
+
+    In: s = pd.Series([1,3,5,np.nan,6,8], index=dates).shift(2)
+    
+    In: s
+    Out: 
+		    2013-01-01 NaN
+		    2013-01-02 NaN
+		    2013-01-03 1.0
+		    2013-01-04 3.0
+		    2013-01-05 5.0
+		    2013-01-06 NaN
+    Freq: D, dtype: float64
+    In: df.sub(s, axis='index')
+    Out: 
+                   A         B         C    D    F
+    2013-01-01   NaN        NaN       NaN   NaN  NaN
+    2013-01-02   NaN        NaN       NaN   NaN  NaN
+    2013-01-03 -1.861849 -3.104569 -1.494929  4.0  1.0
+    2013-01-04 -2.278445 -3.706771 -4.039575  2.0  0.0
+    2013-01-05 -5.424972 -4.432980 -4.723768  0.0 -1.0
+    2013-01-06   NaN        NaN       NaN   NaN  NaN
+
+
+Apply()方法：对对象使用括号内的运算
+
+    df.apply(lambda x: x.max() - x.min()) # 每一列最大值减最小值
+直方图化(Histogramming)
+
+    s.value_count() # 对Series的元素数目进行统计得出元素的种类和值
+字符串方法
+
+    s.str.lower() # 将s中的字符串全变为小写
+
+
+## Merge ##
+
+    df.concat() # 参数为一个DataFrame的List，该函数将其按行拼接
+    df.merge() # 该函数将DataFrame按列拼接
+    df.append() # 该函数为DataFrame添加行或列
+
+## Grouping ##
+    In: df
+    Out: 
+	        A      B         C         D
+	    0  foo    one   -1.202872 -0.055224
+	    1  bar    one   -1.814470  2.395985
+	    2  foo    two    1.018601  1.552825
+	    3  bar   three   -0.595447  0.166599
+	    4  foo    two    1.395433  0.047609
+	    5  bar    two   -0.392670 -0.136473
+	    6  foo    one    0.007207 -0.561757
+	    7  foo   three   1.928123 -1.623033
+
+    In : df.groupby('A').sum()
+    Out: 
+		            C        D
+		    A 
+		    bar -2.802588  2.42611
+		    foo  3.146492 -0.63958
+
+## Plotting ##
+Series 作图
+
+    ts.plot() # 横轴为index 纵轴为数据
+    df.plot() #多条线 横轴为Index 纵轴为数据 每条线名称为column
+
+## 数据in/out ##
+
+csv文件(读出为DataFrame数据)
+    
+    df.to_csv('foo.csv')
+    pd.read_csv('foo.csv')
+    
