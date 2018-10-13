@@ -57,7 +57,7 @@ DataFrame可以通过一个numpy array初始化
     df.columns # 查看cloumn
     df.values #查看数据
 
-    IN: df.describe() # 查看数据的统计值
+    IN: df.describe(include='all') # 查看数据的统计值 括号内参数为显示所有的cloumn的统计值
     Out: 
                 A        B         C         D
     count  6.000000  6.000000  6.000000  6.000000
